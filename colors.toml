@@ -1,0 +1,60 @@
+# Steel & Ember — Omarchy theme by Glyphsmith
+# Dark blue-grey forged steel with glowing ember accents.
+
+mode = "dark"
+
+accent = "#f28c38"
+selection = "#3d302a"
+muted = "#6e7783"
+
+background = "#191d22"
+dark_background = "#14171b"
+darker_background = "#0e1013"
+lighter_background = "#242930"
+
+foreground = "#d4cfc8"
+dark_foreground = "#8f97a1"
+light_foreground = "#e3ddd4"
+bright_foreground = "#f2ebe1"
+
+red = "#e8604f"
+yellow = "#f0b04a"
+orange = "#f28c38"
+green = "#a8b765"
+cyan = "#79b0b0"
+blue = "#7f9fc0"
+magenta = "#c9849a"
+brown = "#7a3f1d"
+
+bright_red = "#ff7a66"
+bright_yellow = "#ffcd70"
+bright_green = "#c3d283"
+bright_cyan = "#9dcccb"
+bright_blue = "#a0bcd8"
+bright_magenta = "#dfa0b4"
+
+# Window borders: ember orange cooling into deep forge red.
+hyprland_active_border = "rgba(f28c38ee) rgba(b8382aee) 45deg"
+hyprland_inactive_border = "rgba(3a424caa)"
+
+# Terminal and selection colors.
+cursor = "#f2ebe1"
+selection_foreground = "#f2ebe1"
+selection_background = "#3d302a"
+
+color0 = "#191d22"
+color1 = "#e8604f"
+color2 = "#a8b765"
+color3 = "#f0b04a"
+color4 = "#7f9fc0"
+color5 = "#c9849a"
+color6 = "#79b0b0"
+color7 = "#d4cfc8"
+color8 = "#6e7783"
+color9 = "#ff7a66"
+color10 = "#c3d283"
+color11 = "#ffcd70"
+color12 = "#a0bcd8"
+color13 = "#dfa0b4"
+color14 = "#9dcccb"
+color15 = "#f2ebe1"
