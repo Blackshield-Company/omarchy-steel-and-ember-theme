@@ -1,0 +1,132 @@
+# Glyphsmith install test: installs this theme headlessly with Omarchy's real omarchy-theme-set
+# (the latest Omarchy release must pass; the tip of Omarchy's default branch, its "main" line, currently
+# `quattro`, is allowed to fail) and checks what lands.
+name: Install test
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "23 7 * * 1"   # weekly, Monday 07:23 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    name: Omarchy ${{ matrix.omarchy }}
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.allow_failure }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - omarchy: latest-release
+            allow_failure: false
+          - omarchy: default-branch
+            allow_failure: true
+    env:
+      OMARCHY_WANT: ${{ matrix.omarchy }}
+    steps:
+      - name: Check out the theme
+        uses: actions/checkout@v4
+        with:
+          path: theme
+
+      - name: Install tools (gawk for Omarchy's template renderer)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq gawk jq >/dev/null
+          mkdir -p "$RUNNER_TEMP/bin"
+          ln -sf "$(command -v gawk)" "$RUNNER_TEMP/bin/awk"
+          "$RUNNER_TEMP/bin/awk" --version | head -1
+
+      - name: Fetch Omarchy
+        run: |
+          set -euo pipefail
+          ref=$OMARCHY_WANT
+          if [ "$ref" = latest-release ]; then
+            ref=$(git ls-remote --tags --sort=-v:refname https://github.com/basecamp/omarchy 'v*' \
+              | grep -v '\^{}$' | head -1 | sed 's|.*refs/tags/||')
+          fi
+          if [ "$ref" = default-branch ]; then
+            git clone -q --depth 1 https://github.com/basecamp/omarchy "$RUNNER_TEMP/omarchy"
+            ref=$(git -C "$RUNNER_TEMP/omarchy" rev-parse --abbrev-ref HEAD)
+          else
+            git clone -q --depth 1 --branch "$ref" https://github.com/basecamp/omarchy "$RUNNER_TEMP/omarchy"
+          fi
+          echo "OMARCHY_REF=$ref" >> "$GITHUB_ENV"
+          echo "Omarchy $ref at $(git -C "$RUNNER_TEMP/omarchy" rev-parse --short HEAD)"
+
+      - name: Install the theme as omarchy-theme-install would (git clone, then omarchy-theme-set)
+        run: |
+          set -euo pipefail
+          repo=${GITHUB_REPOSITORY#*/}
+          name=$(printf '%s' "$repo" | sed -E 's/^omarchy-//; s/-theme$//' | tr '[:upper:]' '[:lower:]')
+          echo "THEME_NAME=$name" >> "$GITHUB_ENV"
+          H=$RUNNER_TEMP/home-git
+          mkdir -p "$H/.config/omarchy/themes" "$H/.local/state/omarchy/current"
+          git clone -q "$GITHUB_WORKSPACE/theme" "$H/.config/omarchy/themes/$name"
+          set +e
+          env -i HOME="$H" PATH="$RUNNER_TEMP/bin:$RUNNER_TEMP/omarchy/bin:/usr/bin:/bin" \
+            OMARCHY_PATH="$RUNNER_TEMP/omarchy" OMARCHY_THEME_HEADLESS=1 XDG_RUNTIME_DIR="$RUNNER_TEMP" LANG=C.UTF-8 \
+            omarchy-theme-set "$name" > "$RUNNER_TEMP/theme-set.log" 2>&1
+          echo "SET_RC=$?" >> "$GITHUB_ENV"
+          cat "$RUNNER_TEMP/theme-set.log"
+
+      - name: Check the applied theme
+        run: |
+          set -uo pipefail
+          T=$GITHUB_WORKSPACE/theme H=$RUNNER_TEMP/home-git O=$RUNNER_TEMP/omarchy
+          C=$H/.local/state/omarchy/current CUR=$C/theme
+          pass=0 fail=0
+          ok() { if eval "$2"; then echo "PASS  $1"; pass=$((pass+1)); else echo "::error::FAIL  $1"; fail=$((fail+1)); fi; }
+          ok "omarchy-theme-set exit 0 (Omarchy $OMARCHY_REF)" '[ "$SET_RC" = 0 ]'
+          ok "theme.name = $THEME_NAME" '[ "$(cat "$C/theme.name" 2>/dev/null)" = "$THEME_NAME" ]'
+          ok "nothing dropped by the git-install filter" '! grep -q "^Ignored in" "$RUNNER_TEMP/theme-set.log"'
+          ok "colors.toml exists and parses with a mode" 'python3 -c "import tomllib,sys; c=tomllib.load(open(sys.argv[1],\"rb\")); sys.exit(c.get(\"mode\") not in (\"dark\",\"light\"))" "$T/colors.toml"'
+          for f in "$T"/*; do
+            b=${f##*/}
+            case $b in README*|LICENSE*|CHANGELOG*|VERSION|*.md|*.txt|*.sh) continue ;; esac
+            if [ -d "$f" ]; then
+              ok "$b/ staged ($(ls "$f" | wc -l) files)" 'diff -rq "$f" "$CUR/$b" >/dev/null'
+            else
+              ok "$b staged verbatim" 'cmp -s "$f" "$CUR/$b"'
+            fi
+          done
+          first_bg=$(ls "$T/backgrounds" | LC_ALL=C sort | head -1)
+          ok "background link -> $first_bg" '[ "$(basename "$(readlink "$C/background")")" = "$first_bg" ]'
+          for tpl in "$O"/default/themed/*.tpl; do
+            out=$(basename "$tpl" .tpl)
+            ok "rendered $out" '[ -s "$CUR/$out" ]'
+          done
+          accent=$(python3 -c "import tomllib,sys,re; c=tomllib.load(open(sys.argv[1],'rb')); m=re.search(r'rgba?\(([0-9a-fA-F]{6})', c.get('hyprland_active_border','')); print((m.group(1) if m else c['accent'].lstrip('#')).lower())" "$T/colors.toml")
+          ok "hyprland.lua uses the theme border colour $accent" 'grep -qi "$accent" "$CUR/hyprland.lua"'
+          for f in "$CUR"/*.toml; do ok "$(basename "$f") parses as TOML" 'python3 -c "import tomllib,sys; tomllib.load(open(sys.argv[1],\"rb\"))" "$f"'; done
+          for f in "$CUR"/*.json; do [ -e "$f" ] || continue; ok "$(basename "$f") parses as JSON" 'jq -e . "$f" >/dev/null'; done
+          echo "== $pass passed, $fail failed"
+          [ "$fail" = 0 ]
+
+      - name: Bundled install.sh / uninstall.sh round trip
+        if: hashFiles('theme/install.sh') != ''
+        run: |
+          set -euo pipefail
+          H=$RUNNER_TEMP/home-copy; mkdir -p "$H/.local/state/omarchy/current"
+          run() { env -i HOME="$H" THEME_NAME="$THEME_NAME" PATH="$RUNNER_TEMP/bin:$RUNNER_TEMP/omarchy/bin:/usr/bin:/bin" \
+            OMARCHY_PATH="$RUNNER_TEMP/omarchy" OMARCHY_THEME_HEADLESS=1 XDG_RUNTIME_DIR="$RUNNER_TEMP" LANG=C.UTF-8 "$@"; }
+          run omarchy-theme-set tokyo-night >/dev/null 2>&1
+          before=$(cd "$H" && find . -path ./.local/state/omarchy -prune -o -print | LC_ALL=C sort | sha256sum)
+          run bash "$GITHUB_WORKSPACE/theme/install.sh" --apply
+          [ "$(cat "$H/.local/state/omarchy/current/theme.name")" = "$THEME_NAME" ]
+          run bash "$GITHUB_WORKSPACE/theme/uninstall.sh"
+          [ "$(cat "$H/.local/state/omarchy/current/theme.name")" = tokyo-night ]
+          after=$(cd "$H" && find . -path ./.local/state/omarchy -prune -o -print | LC_ALL=C sort | sha256sum)
+          [ "$before" = "$after" ] && echo "PASS  install.sh --apply / uninstall.sh leave HOME as it was"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: install-test-${{ matrix.omarchy }}
+          path: ${{ runner.temp }}/theme-set.log
