@@ -11,5 +11,5 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 <!-- Sections to use: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
-[Unreleased]: https://github.com/synthalorian/omarchy-steel-and-ember-theme/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/synthalorian/omarchy-steel-and-ember-theme/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Blackshield-Company/omarchy-steel-and-ember-theme/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Blackshield-Company/omarchy-steel-and-ember-theme/releases/tag/v0.1.0
