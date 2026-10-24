@@ -47,8 +47,8 @@ jobs:
           set -euo pipefail
           ref=$OMARCHY_WANT
           if [ "$ref" = latest-release ]; then
-            ref=$(git ls-remote --tags --sort=-v:refname https://github.com/basecamp/omarchy 'v*' \
-              | grep -v '\^{}$' | head -1 | sed 's|.*refs/tags/||')
+            tags=$(git ls-remote --tags --sort=-v:refname https://github.com/basecamp/omarchy 'v*')
+            ref=$(printf '%s\n' "$tags" | grep -v '\^{}$' | sed -n '1{s|.*refs/tags/||;p;}')
           fi
           if [ "$ref" = default-branch ]; then
             git clone -q --depth 1 https://github.com/basecamp/omarchy "$RUNNER_TEMP/omarchy"
