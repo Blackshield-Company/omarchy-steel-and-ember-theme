@@ -78,13 +78,13 @@ Pick one method.
 **1. Omarchy's installer (recommended)**
 
 ```bash
-omarchy-theme-install https://github.com/synthalorian/omarchy-steel-and-ember-theme
+omarchy-theme-install https://github.com/Blackshield-Company/omarchy-steel-and-ember-theme
 ```
 
 **2. Git clone into the themes folder**
 
 ```bash
-git clone https://github.com/synthalorian/omarchy-steel-and-ember-theme ~/.config/omarchy/themes/steel-and-ember
+git clone https://github.com/Blackshield-Company/omarchy-steel-and-ember-theme ~/.config/omarchy/themes/steel-and-ember
 omarchy-theme-set steel-and-ember
 ```
 
