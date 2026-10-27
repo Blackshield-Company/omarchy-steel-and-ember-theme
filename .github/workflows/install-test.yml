@@ -30,7 +30,7 @@ jobs:
       OMARCHY_WANT: ${{ matrix.omarchy }}
     steps:
       - name: Check out the theme
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: theme
 
