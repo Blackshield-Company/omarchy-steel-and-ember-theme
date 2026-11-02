@@ -88,7 +88,7 @@ git clone https://github.com/Blackshield-Company/omarchy-steel-and-ember-theme ~
 omarchy-theme-set steel-and-ember
 ```
 
-**3. Release tarball with the bundled installer** (backs up any existing theme of the same name and writes a manifest)
+**3. Release tarball with the bundled installer** (writes a manifest inside the theme folder; it refuses to replace a `steel-and-ember` folder it didn't install)
 
 ```bash
 tar -xzf steel-and-ember-0.1.0.tar.gz
@@ -113,7 +113,7 @@ omarchy-theme-set steel-and-ember
 ## Uninstall
 
 - Installed with method 1, 2 or 4: switch to another theme, then `omarchy-theme-remove steel-and-ember`
-- Installed with method 3: `./uninstall.sh` (switches away if the theme is active, removes only the files it added and restores your backup). Use `./uninstall.sh --dry-run` to preview.
+- Installed with method 3: `./uninstall.sh` (switches away if the theme is active, removes only the files it added, then the folder. Files you edited, or replaced with a symlink or a folder, stay in the theme folder with the manifest). Use `./uninstall.sh --dry-run` to preview.
 
 ## Changelog
 
