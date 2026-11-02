@@ -174,20 +174,7 @@ for d in "${SORTED_DIRS[@]+"${SORTED_DIRS[@]}"}"; do
   fi
 done
 
-# 5. Remove the folders above it that install.sh created (and recorded), deepest first, only while
-#    each is still a real, empty folder with no symlink on the way from HOME. Never anything else.
+# 5. Folders above the theme folder (~/.config, omarchy, themes) are never removed, even if install.sh
+#    created them and they are now empty: uninstall only ever touches paths inside the theme folder.
 [[ -z $PARENTS_NOTE ]] || log "note: $PARENTS_NOTE"
-mapfile -t SORTED_PARENTS < <(printf '%s\n' "${PARENTS[@]+"${PARENTS[@]}"}" | awk 'NF {print length($0)"\t"$0}' | sort -rn | cut -f2-)
-for d in "${SORTED_PARENTS[@]+"${SORTED_PARENTS[@]}"}"; do
-  d=${HOME%/}/$d
-  [[ -e $d || -L $d ]] || continue
-  if [[ ! -d $d || -L $d ]] || ! no_link_below_home "$d"; then
-    log "note: left $d: it is no longer a real folder, or a folder on the way to it is a symlink"; continue
-  fi
-  if (( DRY_RUN )); then
-    printf '[dry-run] rmdir %s (if empty)\n' "$d"
-  else
-    rmdir -- "$d" 2>/dev/null || true   # still holds something (another theme, your files): it stays
-  fi
-done
 log "Done."
