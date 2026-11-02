@@ -11,6 +11,9 @@ fail() { echo "FAIL: $*"; exit 1; }
 mkdir "$tmp/h1"
 HOME=$tmp/h1 THEME_NAME=steel-and-ember PATH=/usr/bin:/bin bash "$repo/install.sh" >/dev/null 2>&1 || true
 [[ -e $tmp/h1/.config/omarchy/themes/steel-and-ember ]] || fail "install did not create theme dir"
+for dev in tests .github; do
+  [[ ! -e $tmp/h1/.config/omarchy/themes/steel-and-ember/$dev ]] || fail "dev-only $dev/ was installed"
+done
 HOME=$tmp/h1 THEME_NAME=steel-and-ember PATH=/usr/bin:/bin bash "$repo/uninstall.sh" --no-switch </dev/null >/dev/null 2>&1 || true
 [[ -z $(ls -A "$tmp/h1") ]] || fail "HOME not empty after uninstall: $(cd "$tmp/h1" && find .)"
 
