@@ -71,7 +71,7 @@ no_link_below_home "$DEST" ||
 
 # Files to install: everything except packaging and VCS cruft (sorted, relative).
 mapfile -t FILES < <(cd "$SCRIPT_DIR" && find . \
-  \( -name .git -o -name releases -o -name .github \) -prune -o \
+  \( -name .git -o -name releases -o -name .github -o -path ./tests \) -prune -o \
   -type f ! -name install.sh ! -name uninstall.sh ! -name build-release.sh \
   ! -name '*.manifest' ! -name '.DS_Store' -print | sed 's|^\./||' | LC_ALL=C sort)
 (( ${#FILES[@]} > 0 )) || die "no theme files found in $SCRIPT_DIR"
