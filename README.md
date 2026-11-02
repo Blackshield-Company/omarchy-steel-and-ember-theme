@@ -2,7 +2,7 @@
 
 Dark and warm, like forged steel and glowing ember: a blue-grey charcoal base with ember orange, amber and forge-red accents.
 
-**Version:** 0.1.1 · **For:** Omarchy (Hyprland) 4.0+ · **Mode:** dark
+**Version:** 0.1.2 · **For:** Omarchy (Hyprland) 4.0+ · **Mode:** dark
 
 ![Steel & Ember preview](preview.png)
 
@@ -91,13 +91,13 @@ omarchy-theme-set steel-and-ember
 **3. Release tarball with the bundled installer** (writes a manifest inside the theme folder; it refuses to replace a `steel-and-ember` folder it didn't install)
 
 ```bash
-tar -xzf steel-and-ember-0.1.1.tar.gz
+tar -xzf steel-and-ember-0.1.2.tar.gz
 cd steel-and-ember
 ./install.sh --dry-run   # preview
 ./install.sh --apply     # install and switch to it
 ```
 
-Checksum: `sha256sum -c steel-and-ember-0.1.1.tar.gz.sha256`
+Checksum: `sha256sum -c steel-and-ember-0.1.2.tar.gz.sha256`
 
 **4. Copy it by hand** (a plain copy without `.git` counts as your own theme, so Omarchy uses every file)
 
