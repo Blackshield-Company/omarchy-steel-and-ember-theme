@@ -2,7 +2,7 @@
 
 Dark and warm, like forged steel and glowing ember: a blue-grey charcoal base with ember orange, amber and forge-red accents.
 
-**Version:** 0.1.0 · **For:** Omarchy (Hyprland) 4.0+ · **Mode:** dark
+**Version:** 0.1.1 · **For:** Omarchy (Hyprland) 4.0+ · **Mode:** dark
 
 ![Steel & Ember preview](preview.png)
 
@@ -88,16 +88,16 @@ git clone https://github.com/Blackshield-Company/omarchy-steel-and-ember-theme ~
 omarchy-theme-set steel-and-ember
 ```
 
-**3. Release tarball with the bundled installer** (backs up any existing theme of the same name and writes a manifest)
+**3. Release tarball with the bundled installer** (writes a manifest inside the theme folder; it refuses to replace a `steel-and-ember` folder it didn't install)
 
 ```bash
-tar -xzf steel-and-ember-0.1.0.tar.gz
+tar -xzf steel-and-ember-0.1.1.tar.gz
 cd steel-and-ember
 ./install.sh --dry-run   # preview
 ./install.sh --apply     # install and switch to it
 ```
 
-Checksum: `sha256sum -c steel-and-ember-0.1.0.tar.gz.sha256`
+Checksum: `sha256sum -c steel-and-ember-0.1.1.tar.gz.sha256`
 
 **4. Copy it by hand** (a plain copy without `.git` counts as your own theme, so Omarchy uses every file)
 
@@ -113,7 +113,7 @@ omarchy-theme-set steel-and-ember
 ## Uninstall
 
 - Installed with method 1, 2 or 4: switch to another theme, then `omarchy-theme-remove steel-and-ember`
-- Installed with method 3: `./uninstall.sh` (switches away if the theme is active, removes only the files it added and restores your backup). Use `./uninstall.sh --dry-run` to preview.
+- Installed with method 3: `./uninstall.sh` (switches away if the theme is active, removes only the files it added, then the folder. Files you edited, or replaced with a symlink or a folder, stay in the theme folder with the manifest. Folders above it that install.sh created, such as `~/.config/omarchy/themes`, are removed only if they are still empty). Use `./uninstall.sh --dry-run` to preview.
 
 ## Changelog
 
