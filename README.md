@@ -113,7 +113,7 @@ omarchy-theme-set steel-and-ember
 ## Uninstall
 
 - Installed with method 1, 2 or 4: switch to another theme, then `omarchy-theme-remove steel-and-ember`
-- Installed with method 3: `./uninstall.sh` (switches away if the theme is active, removes only the files it added, then the folder. Files you edited, or replaced with a symlink or a folder, stay in the theme folder with the manifest). Use `./uninstall.sh --dry-run` to preview.
+- Installed with method 3: `./uninstall.sh` (switches away if the theme is active, removes only the files it added, then the folder. Files you edited, or replaced with a symlink or a folder, stay in the theme folder with the manifest. Folders above it that install.sh created, such as `~/.config/omarchy/themes`, are removed only if they are still empty). Use `./uninstall.sh --dry-run` to preview.
 
 ## Changelog
 
