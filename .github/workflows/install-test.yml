@@ -124,6 +124,10 @@ jobs:
           after=$(cd "$H" && find . -path ./.local/state/omarchy -prune -o -print | LC_ALL=C sort | sha256sum)
           [ "$before" = "$after" ] && echo "PASS  install.sh --apply / uninstall.sh leave HOME as it was"
 
+      - name: uninstall.sh parent cleanup resists a symlink swap (TOCTOU)
+        if: hashFiles('theme/tests/uninstall-parents-race.sh') != ''
+        run: bash "$GITHUB_WORKSPACE/theme/tests/uninstall-parents-race.sh"
+
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4

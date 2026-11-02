@@ -187,7 +187,15 @@ for d in "${SORTED_PARENTS[@]+"${SORTED_PARENTS[@]}"}"; do
   if (( DRY_RUN )); then
     printf '[dry-run] rmdir %s (if empty)\n' "$d"
   else
-    rmdir -- "$d" 2>/dev/null || true   # still holds something (another theme, your files): it stays
+    # Pin the parent folder as our working directory (cd -P resolves it once), confirm it is
+    # physically where it should be, then rmdir a single name relative to it. Swapping a folder
+    # on the way for a symlink after the checks above can no longer redirect the rmdir.
+    ( real_home=$(cd -P -- "$HOME" 2>/dev/null && pwd -P) || exit 0
+      rel=${d#"${HOME%/}"/}
+      cd -P -- "${d%/*}" 2>/dev/null || exit 0
+      want=$real_home; [[ $rel == */* ]] && want=$real_home/${rel%/*}
+      [[ $(pwd -P) == "$want" ]] || exit 0
+      rmdir -- "${d##*/}" 2>/dev/null ) || true   # still holds something (another theme, your files): it stays
   fi
 done
 log "Done."
